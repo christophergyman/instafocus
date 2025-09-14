@@ -1,12 +1,19 @@
 {
   "manifest_version": 3,
-  "name": "Hello World Extension",
+  "name": "InstaFocus",
   "version": "1.0",
-  "description": "A simple Chrome extension that shows a Hello World popup",
-  "permissions": [],
+  "description": "Hide distractions on Instagram",
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["*://*.instagram.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Click to see Hello World!",
+    "default_title": "InstaFocus",
     "default_icon": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png",

@@ -3,17 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello World Extension</title>
+    <title>InstaFocus</title>
     <link rel="stylesheet" href="popup.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Hello World!</h1>
+            <h1>InstaFocus</h1>
         </div>
         <div class="content">
-            <p>Welcome to your Chrome extension!</p>
-            <p>This popup appears when you click the extension icon.</p>
+            <p>Select features you want to hide</p>
+            <div class="checkbox-container">
+                <label class="checkbox-item">
+                    <input type="checkbox" id="homeFeed" value="Home Feed">
+                    <span class="checkmark"></span>
+                    <span class="label-text">Home Feed</span>
+                </label>
+                
+                <label class="checkbox-item">
+                    <input type="checkbox" id="explore" value="Explore">
+                    <span class="checkmark"></span>
+                    <span class="label-text">Explore</span>
+                </label>
+                
+                <label class="checkbox-item">
+                    <input type="checkbox" id="reels" value="Reels">
+                    <span class="checkmark"></span>
+                    <span class="label-text">Reels</span>
+                </label>
+                
+                <label class="checkbox-item">
+                    <input type="checkbox" id="messages" value="Messages">
+                    <span class="checkmark"></span>
+                    <span class="label-text">Messages</span>
+                </label>
+                
+                <label class="checkbox-item">
+                    <input type="checkbox" id="likes" value="Likes">
+                    <span class="checkmark"></span>
+                    <span class="label-text">Likes</span>
+                </label>
+                
+                <label class="checkbox-item">
+                    <input type="checkbox" id="create" value="Create">
+                    <span class="checkmark"></span>
+                    <span class="label-text">Create</span>
+                </label>
+            </div>
         </div>
         <div class="footer">
             <button id="closeBtn">Close</button>
