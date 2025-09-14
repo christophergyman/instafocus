@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const isChecked = this.checked;
             
             // Log the change
-            console.log(`${feature} is now ${isChecked ? 'enabled' : 'disabled'}`);
+            console.log(`${feature} is now ${isChecked ? 'selected to hide' : 'not selected to hide'}`);
             
             // Save to Chrome storage and notify content script
             saveFeatureState(feature, isChecked);
@@ -47,7 +47,7 @@ function loadFeatureStates() {
     console.log('Loading saved feature states...');
     
     // Load from Chrome storage
-    chrome.storage.sync.get(['Home Feed', 'Explore', 'Reels', 'Messages', 'Likes', 'Create'], function(result) {
+    chrome.storage.sync.get(['Home Feed', 'Explore', 'Reels', 'Messages', 'Likes', 'Create', 'Search', 'Notifications', 'Profile'], function(result) {
         Object.keys(result).forEach(function(feature) {
             const checkbox = document.querySelector(`input[value="${feature}"]`);
             if (checkbox) {

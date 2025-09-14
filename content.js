@@ -32,6 +32,23 @@ const featureSelectors = {
         'a[href="/create/"]',
         'a[href="/create/?hl=en"]',
         '[data-testid="create"]'
+    ],
+    'Search': [
+        'a[href="/explore/"]',
+        'input[placeholder*="Search"]',
+        '[data-testid="search"]',
+        'svg[aria-label="Search"]'
+    ],
+    'Notifications': [
+        'a[href="/activity/"]',
+        'a[href="/activity/?hl=en"]',
+        '[data-testid="notifications"]',
+        'svg[aria-label="Notifications"]'
+    ],
+    'Profile': [
+        'a[href*="/"]',
+        '[data-testid="profile"]',
+        'svg[aria-label="Profile"]'
     ]
 };
 
@@ -104,6 +121,10 @@ function injectHidingCSS() {
         a[href="/direct/inbox/"] { display: none !important; }
         a[href="/activity/"] { display: none !important; }
         a[href="/create/"] { display: none !important; }
+        input[placeholder*="Search"] { display: none !important; }
+        svg[aria-label="Search"] { display: none !important; }
+        svg[aria-label="Notifications"] { display: none !important; }
+        svg[aria-label="Profile"] { display: none !important; }
     `;
     document.head.appendChild(style);
 }
