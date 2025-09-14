@@ -1,90 +1,143 @@
 // content.js - Runs on Instagram pages to hide features
 console.log('InstaFocus content script loaded');
 
-// Define selectors for Instagram features
+// Define selectors for Instagram features with more comprehensive targeting
 const featureSelectors = {
     'Home Feed': [
         'a[href="/"]',
         'a[href="/?hl=en"]',
-        '[data-testid="home-feed"]'
+        '[data-testid="home-feed"]',
+        'svg[aria-label="Home"]',
+        'svg[aria-label="Home (current page)"]'
     ],
     'Explore': [
         'a[href="/explore/"]',
         'a[href="/explore/?hl=en"]',
-        '[data-testid="explore"]'
+        '[data-testid="explore"]',
+        'svg[aria-label="Explore"]',
+        'svg[aria-label="Find People"]'
     ],
     'Reels': [
         'a[href="/reels/"]',
         'a[href="/reels/?hl=en"]',
-        '[data-testid="reels"]'
+        '[data-testid="reels"]',
+        'svg[aria-label="Reels"]'
     ],
     'Messages': [
         'a[href="/direct/inbox/"]',
         'a[href="/direct/inbox/?hl=en"]',
-        '[data-testid="messages"]'
+        '[data-testid="messages"]',
+        'svg[aria-label="Direct"]',
+        'svg[aria-label="Messenger"]'
     ],
     'Likes': [
         'a[href="/activity/"]',
         'a[href="/activity/?hl=en"]',
-        '[data-testid="likes"]'
+        '[data-testid="likes"]',
+        'svg[aria-label="Activity Feed"]',
+        'svg[aria-label="Notifications"]'
     ],
     'Create': [
         'a[href="/create/"]',
         'a[href="/create/?hl=en"]',
-        '[data-testid="create"]'
+        '[data-testid="create"]',
+        'svg[aria-label="New post"]',
+        'svg[aria-label="Create"]',
+        'div[role="button"]:has(svg[aria-label="New post"])',
+        'div[role="button"]:has(svg[aria-label="Create"])'
     ],
     'Search': [
-        'a[href="/explore/"]',
         'input[placeholder*="Search"]',
+        'input[placeholder*="search"]',
         '[data-testid="search"]',
-        'svg[aria-label="Search"]'
+        'svg[aria-label="Search"]',
+        'div[role="button"]:has(svg[aria-label="Search"])',
+        'a[href*="/search/"]'
     ],
     'Notifications': [
         'a[href="/activity/"]',
         'a[href="/activity/?hl=en"]',
         '[data-testid="notifications"]',
-        'svg[aria-label="Notifications"]'
-    ],
-    'Profile': [
-        'a[href*="/"]',
-        '[data-testid="profile"]',
-        'svg[aria-label="Profile"]'
+        'svg[aria-label="Notifications"]',
+        'svg[aria-label="Activity Feed"]',
+        'div[role="button"]:has(svg[aria-label="Notifications"])',
+        'div[role="button"]:has(svg[aria-label="Activity Feed"])'
     ]
 };
 
 // Function to hide elements based on selectors
 function hideElements(selectors) {
     selectors.forEach(selector => {
-        const elements = document.querySelectorAll(selector);
-        elements.forEach(el => {
-            // Hide the element and its parent container
-            el.style.display = 'none';
-            
-            // Also try to hide the parent nav item
-            const parent = el.closest('div[role="button"], div[class*="nav"], span[class*="nav"]');
-            if (parent) {
-                parent.style.display = 'none';
-            }
-        });
+        try {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(el => {
+                // Hide the element and its parent container
+                el.style.display = 'none';
+                
+                // Also try to hide the parent nav item
+                const parent = el.closest('div[role="button"], div[class*="nav"], span[class*="nav"], a, section');
+                if (parent) {
+                    parent.style.display = 'none';
+                }
+                
+                // Hide the entire navigation item container
+                const navItem = el.closest('div[class*="nav"], div[role="button"], section[class*="nav"]');
+                if (navItem) {
+                    navItem.style.display = 'none';
+                }
+            });
+        } catch (e) {
+            console.log(`Error with selector ${selector}:`, e);
+        }
     });
 }
 
 // Enhanced function to show elements (unhide)
 function showElements(selectors) {
     selectors.forEach(selector => {
-        const elements = document.querySelectorAll(selector);
-        elements.forEach(el => {
-            // Show the element
-            el.style.display = '';
-            el.style.visibility = '';
-            el.style.opacity = '';
-            
-            // Also show the parent nav item
-            const parent = el.closest('div[role="button"], div[class*="nav"], span[class*="nav"]');
-            if (parent) {
-                parent.style.display = '';
-                parent.style.visibility = '';
-                parent.style.opacity = '';
+        try {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(el => {
+                // Show the element
+                el.style.display = '';
+                el.style.visibility = '';
+                el.style.opacity = '';
+                
+                // Also show the parent nav item
+                const parent = el.closest('div[role="button"], div[class*="nav"], span[class*="nav"], a, section');
+                if (parent) {
+                    parent.style.display = '';
+                    parent.style.visibility = '';
+                    parent.style.opacity = '';
+                }
+                
+                // Show the entire navigation item container
+                const navItem = el.closest('div[class*="nav"], div[role="button"], section[class*="nav"]');
+                if (navItem) {
+                    navItem.style.display = '';
+                    navItem.style.visibility = '';
+                    navItem.style.opacity = '';
+                }
+            });
+        } catch (e) {
+            console.log(`Error with selector ${selector}:`, e);
+        }
+    });
+}
+
+// Function to force refresh all features based on current settings
+function forceRefreshAllFeatures() {
+    console.log('Force refreshing all features...');
+    chrome.storage.sync.get(Object.keys(featureSelectors), function(result) {
+        console.log('Current settings:', result);
+        
+        Object.keys(featureSelectors).forEach(feature => {
+            if (result[feature] === true) {
+                console.log(`Force hiding ${feature}`);
+                hideElements(featureSelectors[feature]);
+            } else {
+                console.log(`Force showing ${feature}`);
+                showElements(featureSelectors[feature]);
             }
         });
     });
@@ -115,7 +168,7 @@ function injectHidingCSS() {
     const style = document.createElement('style');
     style.id = 'instafocus-hiding';
     style.textContent = `
-        /* InstaFocus hiding styles */
+        /* InstaFocus hiding styles - more comprehensive */
         a[href="/reels/"] { display: none !important; }
         a[href="/explore/"] { display: none !important; }
         a[href="/direct/inbox/"] { display: none !important; }
@@ -124,7 +177,14 @@ function injectHidingCSS() {
         input[placeholder*="Search"] { display: none !important; }
         svg[aria-label="Search"] { display: none !important; }
         svg[aria-label="Notifications"] { display: none !important; }
-        svg[aria-label="Profile"] { display: none !important; }
+        svg[aria-label="New post"] { display: none !important; }
+        svg[aria-label="Create"] { display: none !important; }
+        svg[aria-label="Home"] { display: none !important; }
+        svg[aria-label="Explore"] { display: none !important; }
+        svg[aria-label="Reels"] { display: none !important; }
+        svg[aria-label="Direct"] { display: none !important; }
+        svg[aria-label="Messenger"] { display: none !important; }
+        svg[aria-label="Activity Feed"] { display: none !important; }
     `;
     document.head.appendChild(style);
 }
@@ -147,6 +207,17 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             console.log(`Showing ${request.feature} (checkbox unchecked)`);
             showElements(featureSelectors[request.feature]);
         }
+        
+        // Force refresh all features after a short delay to ensure changes are applied
+        setTimeout(() => {
+            forceRefreshAllFeatures();
+        }, 100);
+    }
+    
+    // Handle force refresh request
+    if (request.action === 'forceRefresh') {
+        console.log('Force refresh requested');
+        forceRefreshAllFeatures();
     }
 });
 
@@ -173,7 +244,7 @@ const observer = new MutationObserver(function(mutations) {
     });
     
     if (shouldUpdate) {
-        setTimeout(hideInstagramFeatures, 500); // Small delay to let content load
+        setTimeout(hideInstagramFeatures, 200); // Reduced delay for faster response
     }
 });
 
@@ -188,6 +259,6 @@ let currentUrl = location.href;
 setInterval(function() {
     if (location.href !== currentUrl) {
         currentUrl = location.href;
-        setTimeout(hideInstagramFeatures, 1000);
+        setTimeout(hideInstagramFeatures, 500); // Reduced delay
     }
 }, 1000);

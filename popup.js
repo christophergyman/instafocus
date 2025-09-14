@@ -32,11 +32,19 @@ function saveFeatureState(feature, isEnabled) {
         // Notify content script of changes
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
             if (tabs[0] && tabs[0].url.includes('instagram.com')) {
+                // Send the update message
                 chrome.tabs.sendMessage(tabs[0].id, {
                     action: 'updateSettings',
                     feature: feature,
                     enabled: isEnabled
                 });
+                
+                // Also send a force refresh after a short delay
+                setTimeout(() => {
+                    chrome.tabs.sendMessage(tabs[0].id, {
+                        action: 'forceRefresh'
+                    });
+                }, 200);
             }
         });
     });
@@ -46,8 +54,8 @@ function saveFeatureState(feature, isEnabled) {
 function loadFeatureStates() {
     console.log('Loading saved feature states...');
     
-    // Load from Chrome storage
-    chrome.storage.sync.get(['Home Feed', 'Explore', 'Reels', 'Messages', 'Likes', 'Create', 'Search', 'Notifications', 'Profile'], function(result) {
+    // Load from Chrome storage (removed Profile from the list)
+    chrome.storage.sync.get(['Home Feed', 'Explore', 'Reels', 'Messages', 'Likes', 'Create', 'Search', 'Notifications'], function(result) {
         Object.keys(result).forEach(function(feature) {
             const checkbox = document.querySelector(`input[value="${feature}"]`);
             if (checkbox) {
