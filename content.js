@@ -52,6 +52,27 @@ function hideElements(selectors) {
     });
 }
 
+// Enhanced function to show elements (unhide)
+function showElements(selectors) {
+    selectors.forEach(selector => {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(el => {
+            // Show the element
+            el.style.display = '';
+            el.style.visibility = '';
+            el.style.opacity = '';
+            
+            // Also show the parent nav item
+            const parent = el.closest('div[role="button"], div[class*="nav"], span[class*="nav"]');
+            if (parent) {
+                parent.style.display = '';
+                parent.style.visibility = '';
+                parent.style.opacity = '';
+            }
+        });
+    });
+}
+
 // Function to hide features based on settings
 function hideInstagramFeatures() {
     // Get saved settings from Chrome storage
@@ -59,9 +80,14 @@ function hideInstagramFeatures() {
         console.log('InstaFocus settings:', result);
         
         Object.keys(featureSelectors).forEach(feature => {
-            if (result[feature] === false) { // If feature is disabled
-                console.log(`Hiding ${feature}`);
+            // REVERSED LOGIC: Only hide if explicitly set to true (checked/selected)
+            // If no setting exists (undefined) or false, show everything (default)
+            if (result[feature] === true) {
+                console.log(`Hiding ${feature} (explicitly selected to hide)`);
                 hideElements(featureSelectors[feature]);
+            } else {
+                console.log(`Showing ${feature} (not selected to hide)`);
+                showElements(featureSelectors[feature]);
             }
         });
     });
@@ -90,24 +116,31 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === 'updateSettings') {
         console.log(`Updating ${request.feature}: ${request.enabled}`);
         
-        if (!request.enabled) {
-            // Hide the feature
+        // REVERSED LOGIC: Checked = Hide, Unchecked = Show
+        if (request.enabled) {
+            // Hide the feature (checkbox is checked)
+            console.log(`Hiding ${request.feature} (checkbox checked)`);
             hideElements(featureSelectors[request.feature]);
         } else {
-            // Show the feature (remove hiding)
-            featureSelectors[request.feature].forEach(selector => {
-                const elements = document.querySelectorAll(selector);
-                elements.forEach(el => {
-                    el.style.display = '';
-                    const parent = el.closest('div[role="button"], div[class*="nav"], span[class*="nav"]');
-                    if (parent) {
-                        parent.style.display = '';
-                    }
-                });
-            });
+            // Show the feature (checkbox is unchecked)
+            console.log(`Showing ${request.feature} (checkbox unchecked)`);
+            showElements(featureSelectors[request.feature]);
         }
     }
 });
+
+// Function to remove CSS hiding for a specific feature
+function removeFeatureFromCSS(feature) {
+    const styleElement = document.getElementById('instafocus-hiding');
+    if (styleElement) {
+        // Remove the specific CSS rule for this feature
+        const selectors = featureSelectors[feature];
+        selectors.forEach(selector => {
+            // This is a simplified approach - in practice, you might want to rebuild the CSS
+            console.log(`Removing CSS hiding for ${selector}`);
+        });
+    }
+}
 
 // Re-run when page content changes (for Instagram's SPA navigation)
 const observer = new MutationObserver(function(mutations) {
